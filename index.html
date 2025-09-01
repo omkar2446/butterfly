@@ -1,417 +1,739 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Sync & Chat — Butterfly</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: {} } };
-  </script>
-  <style>
-    /* Butterfly color palette */
-    :root{
-      --butterfly-1: #9b5de5; /* purple */
-      --butterfly-2: #f15bb5; /* pink */
-      --butterfly-3: #00b4d8; /* teal */
-      --bg-dark: #0e0f12;
-      --panel: #17181a;
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      background: linear-gradient(180deg, #06060a 0%, #0b0b0f 60%);
-      color:#fff;min-height:100vh;padding:0;
-    }
-
-    /* Landing / Front page */
-    .landing{
-      height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;
-      background: radial-gradient(800px 400px at 10% 20%, rgba(155,93,229,0.12), transparent),
-                  radial-gradient(700px 350px at 90% 80%, rgba(241,91,181,0.08), transparent),
-                  linear-gradient(180deg,#071021 0%, #0b0f1a 100%);
-    }
-
-    .hero-card{max-width:980px;width:100%;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:20px;padding:36px;box-shadow:0 20px 60px rgba(3,6,15,0.7);border:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center}
-
-    .butterfly-graphic{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
-    .logo{width:120px;height:120px;border-radius:18px;background:linear-gradient(135deg,var(--butterfly-1),var(--butterfly-2));display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(155,93,229,0.18);overflow:hidden}
-    .logo img{width:90%;height:90%;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(155,93,229,0.18));}
-    h1{font-size:32px;color:var(--butterfly-1);font-weight:700}
-    p.lead{color:rgba(255,255,255,0.8);max-width:520px}
-
-    .cta-buttons{display:flex;gap:12px;margin-top:6px}
-    .btn{
-      padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:600;letter-spacing:0.2px
-    }
-    .btn-primary{background:linear-gradient(90deg,var(--butterfly-1),var(--butterfly-2));color:white;box-shadow:0 8px 30px rgba(155,93,229,0.16)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.9)}
-
-    .sneak{font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px}
-
-    /* App wrapper - hidden until Enter pressed */
-    .app{display:none;padding:28px}
-
-    header.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand .mini{width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,var(--butterfly-2),var(--butterfly-3));display:flex;align-items:center;justify-content:center}
-    .brand h2{font-size:18px;color:var(--butterfly-1);font-weight:700}
-
-    .online-users{display:flex;gap:8px;align-items:center}
-    .user-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
-
-    .panel{background:linear-gradient(180deg,var(--panel),rgba(255,255,255,0.02));padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);}
-
-    .youtube-player{background:#000;border-radius:10px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,0.6);}
-
-    /* chat */
-    .chat-area{display:flex;flex-direction:column;height:420px}
-    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-    .message-bubble{max-width:80%;border-radius:14px;padding:10px 12px}
-    .message-bubble.own{align-self:flex-end;background:linear-gradient(90deg,var(--butterfly-2),var(--butterfly-3));color:#fff}
-    .message-bubble.other{align-self:flex-start;background:rgba(255,255,255,0.03);color:#fff}
-    .message-bubble.system{align-self:center;background:transparent;color:rgba(255,255,255,0.6);font-style:italic}
-
-    .controls{display:flex;gap:8px;margin-top:12px}
-
-    /* small responsive */
-    @media (max-width:920px){
-      .hero-card{grid-template-columns:1fr;}
-      .hero-card .butterfly-graphic{align-items:center;text-align:center}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Sync & Chat - Watch Together</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF0000',
+                        secondary: '#282828',
+                        accent: '#3EA6FF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .message-bubble.own {
+            background: #3EA6FF;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-bubble.other {
+            background: #303030;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3EA6FF;
+        }
+        
+        .video-container {
+            transition: all 0.3s ease;
+        }
+        
+        .typing-indicator {
+            display: none;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .user-online {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 2px solid #1a1a1a;
+        }
+        
+        .youtube-player {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .gradient-border {
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, #ff0000, #3EA6FF, #ff0000) border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: #1f1f1f;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+    </style>
 </head>
-<body>
-
-  <!-- Landing / Front page -->
-  <section class="landing" id="landing">
-    <div class="hero-card">
-      <div class="butterfly-graphic">
-        <div class="logo" aria-hidden="true">
-          <!-- Replace the src with your local file path or hosted image -->
-          <img src="assets/butterfly-logo.png" alt="Butterfly logo" id="butterflyLogo">
+<body class="min-h-screen bg-gray-900">
+    <!-- Connection Modal -->
+    <div id="connectionModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-6 text-center">Join a Watch Party</h2>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                <input type="text" id="userName" placeholder="Enter your name" 
+                       class="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button id="createRoomBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                    Create New Room
+                </button>
+                <button id="joinRoomBtn" class="bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                    Join Room
+                </button>
+            </div>
+            
+            <div id="joinRoomSection" class="mt-6 hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Room ID</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="roomId" placeholder="Enter room ID" 
+                           class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none">
+                    <button id="confirmJoinBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        Join
+                    </button>
+                </div>
+            </div>
+            
+            <div id="roomCreatedSection" class="mt-6 hidden">
+                <p class="text-gray-300 mb-2">Share this room ID with your friends:</p>
+                <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
+                    <span id="roomIdDisplay" class="font-mono text-lg">ABCD1234</span>
+                    <button id="copyRoomIdBtn" class="text-blue-400 hover:text-blue-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button id="startWatchingBtn" class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                    Start Watching
+                </button>
+            </div>
         </div>
-        <h1>Butterfly — Watch Together</h1>
-        <p class="lead">A buttery-smooth watch party app with synchronized YouTube playback and live chat. Designed for cozy viewing — invite one friend and enjoy together.</p>
-        <div class="cta-buttons">
-          <button class="btn btn-primary" id="enterBtn">Enter the App</button>
-          <button class="btn btn-ghost" id="demoBtn">Try Demo</button>
-        </div>
-        <div class="sneak">Limit: Up to <strong>2</strong> members per room (you + 1 friend). Replace the logo at <code>assets/butterfly-logo.png</code>.</div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="panel">
-          <h3 style="color:var(--butterfly-1);margin-bottom:8px">How it works</h3>
-          <ol style="color:rgba(255,255,255,0.8);margin-left:14px;line-height:1.6">
-            <li>Enter a name and create or join a room.</li>
-            <li>Share the room ID with 1 friend.</li>
-            <li>Paste a YouTube URL to start synchronized playback.</li>
-          </ol>
-        </div>
-
-        <div class="panel" style="display:flex;gap:10px;align-items:center">
-          <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(90deg,var(--butterfly-1),var(--butterfly-2));display:flex;align-items:center;justify-content:center">✨</div>
-          <div>
-            <strong style="color:var(--butterfly-1)">Designed for two</strong>
-            <p style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px">A focused experience — no large groups, just you and a friend.</p>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- App (hidden by default) -->
-  <section class="app max-w-7xl mx-auto" id="app" style="display:none">
-    <header class="app-header">
-      <div class="brand">
-        <div class="mini">🦋</div>
-        <div>
-          <h2>Butterfly — YouTube Sync & Chat</h2>
-          <div style="font-size:12px;color:rgba(255,255,255,0.6)">Room: <span id="currentRoomId">—</span></div>
-        </div>
-      </div>
+    <!-- Header -->
+    <header class="bg-gray-900 border-b border-gray-700 py-4 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">YouTube Sync & Chat</h1>
+                <div id="roomInfo" class="hidden ml-4 text-sm text-gray-400">
+                    Room: <span id="currentRoomId" class="font-mono">ABCD1234</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div id="onlineUsers" class="flex -space-x-2">
+                    <!-- Users will be added dynamically -->
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-2 bg-gray-800 px-3 py-2 rounded-lg">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span id="onlineCount" class="text-sm text-gray-300">0 users online</span>
+                </div>
 
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="online-users" id="onlineUsersHeader">
-          <!-- avatars added dynamically -->
+                <button id="inviteBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm hidden">
+                    Invite Friends
+                </button>
+            </div>
         </div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.7)" id="onlineCountHeader">0 online</div>
-      </div>
     </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
-      <!-- Video + controls (2/3 width) -->
-      <div class="lg:col-span-2">
-        <div class="youtube-player panel">
-          <div id="player" class="w-full aspect-video"></div>
-        </div>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Video Section -->
+            <div class="lg:col-span-2">
+                <div class="youtube-player">
+                    <div id="player" class="w-full aspect-video"></div>
+                </div>
+                
+                <div class="mt-6 bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4">Video Controls</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button id="playBtn" class="bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                            Play
+                        </button>
+                        <button id="pauseBtn" class="bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                            Pause
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-300">Video URL</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="videoUrl" placeholder="Paste YouTube URL" 
+                                   class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none">
+                            <button id="loadVideo" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                Load
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="panel mt-4">
-          <div class="controls">
-            <button id="playBtn" class="btn btn-primary">Play</button>
-            <button id="pauseBtn" class="btn btn-ghost">Pause</button>
-            <input id="videoUrl" class="bg-transparent border border-gray-700 rounded px-3 py-2 flex-1" placeholder="Paste YouTube URL" />
-            <button id="loadVideo" class="btn btn-primary">Load</button>
-          </div>
+            <!-- Chat Section -->
+            <div class="bg-gray-800 rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-gray-700">
+                    <h2 class="text-xl font-semibold">Group Chat</h2>
+                    <p class="text-sm text-gray-400">Chat with your friends while watching</p>
+                </div>
+                
+                <div class="h-96 overflow-y-auto p-4 space-y-3" id="chatMessages">
+                    <!-- Messages will be added here by JavaScript -->
+                </div>
+                
+                <div class="p-4 border-t border-gray-700">
+                    <div id="typingIndicator" class="typing-indicator">
+                        Someone is typing...
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" placeholder="Type a message..." 
+                               class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none">
+                        <button id="sendBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- Chat (1/3 width) -->
-      <div class="panel chat-area">
-        <div style="border-bottom:1px solid rgba(255,255,255,0.03);padding-bottom:12px;margin-bottom:8px">
-          <h3 style="color:var(--butterfly-1)">Group Chat</h3>
-          <div style="font-size:12px;color:rgba(255,255,255,0.6)">Up to 2 members</div>
-        </div>
-
-        <div class="messages" id="chatMessages"></div>
-
-        <div style="border-top:1px solid rgba(255,255,255,0.03);padding-top:12px;margin-top:8px">
-          <div style="display:flex;gap:8px">
-            <input id="chatInput" placeholder="Type a message..." class="flex-1 bg-transparent border border-gray-700 rounded px-3 py-2" />
-            <button id="sendBtn" class="btn btn-primary">Send</button>
-          </div>
-          <div id="typingIndicator" style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px;display:none">Someone is typing...</div>
-        </div>
-      </div>
     </main>
 
-    <!-- Extra info -->
-    <div style="max-width:980px;margin:22px auto 0;">
-      <div class="panel">
-        <strong style="color:var(--butterfly-1)">Tip:</strong> For best sync keep a stable internet connection. This demo simulates sync behaviour locally — a real deployment would use a small server / WebSocket.
-      </div>
-    </div>
-  </section>
-
-  <!-- Connection Modal (simplified) -->
-  <div id="connectionModal" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:80;display:none">
-    <div style="width:460px;background:var(--panel);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)">
-      <h3 style="color:var(--butterfly-1);margin-bottom:10px">Join a Watch Party</h3>
-      <label style="font-size:13px;color:rgba(255,255,255,0.7)">Your name</label>
-      <input id="userName" class="w-full mt-2 mb-4 bg-transparent border border-gray-700 rounded px-3 py-2" placeholder="Enter your name" />
-      <div style="display:flex;gap:10px">
-        <button id="createRoomBtn" class="btn btn-primary flex-1">Create Room</button>
-        <button id="joinRoomBtn" class="btn btn-ghost flex-1">Join Room</button>
-      </div>
-      <div id="joinRoomSection" style="display:none;margin-top:12px">
-        <label style="font-size:13px;color:rgba(255,255,255,0.7)">Room ID</label>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="roomId" class="flex-1 bg-transparent border border-gray-700 rounded px-3 py-2" placeholder="Enter room ID" />
-          <button id="confirmJoinBtn" class="btn btn-primary">Join</button>
+    <!-- Info Section -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-gray-800 rounded-xl p-6 gradient-border">
+            <h2 class="text-xl font-semibold mb-4">How to Connect with Friends</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">Share Link</h3>
+                    <p class="text-sm text-gray-300">Share this page URL with up to 3 friends to watch together.</p>
+                </div>
+                
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">Sync Playback</h3>
+                    <p class="text-sm text-gray-300">All video controls are synchronized for everyone in the room.</p>
+                </div>
+                
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">Real-time Chat</h3>
+                    <p class="text-sm text-gray-300">Chat with your friends while watching videos together.</p>
+                </div>
+            </div>
         </div>
-      </div>
-      <div id="roomCreatedSection" style="display:none;margin-top:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px">
-          <div style="font-family:monospace;font-weight:700" id="roomIdDisplay">ROOM1234</div>
-          <button id="copyRoomIdBtn" class="btn btn-ghost">Copy</button>
-        </div>
-        <button id="startWatchingBtn" class="btn btn-primary w-full mt-8">Start Watching</button>
-      </div>
     </div>
-  </div>
 
-  <!-- YouTube API + App Script -->
-  <script>
-    // ----- App state and simulated socket (keeps demo local) -----
-    const appState = {
-      currentUser: null,
-      currentRoom: null,
-      users: [],
-      maxMembers: 2,
-      socketListeners: {},
-      socket: {
-        emit: (event,data) => {
-          // Simulate network latency
-          if(event === 'create_room'){
-            setTimeout(()=>{
-              const roomId = generateRoomId();
-              appState.socketListeners['room_created']?.({roomId, users:[appState.currentUser]});
-            },400);
-          }
-          else if(event === 'join_room'){
-            setTimeout(()=>{
-              // Simulate existing one other user (so total becomes 2)
-              const other = {id:'user_other', name:'Friend', color:'linear-gradient(90deg, var(--butterfly-1), var(--butterfly-2))'};
-              const users = [data.user, other];
-              appState.socketListeners['user_joined']?.({user:data.user, users});
-            },600);
-          }
-          else if(event === 'player_action'){
-            setTimeout(()=>{
-              appState.socketListeners['player_action']?.(data);
-            },120);
-          }
-          else if(event === 'send_message'){
-            setTimeout(()=>{
-              // Simulate a short reply from the other user (if present)
-              const other = appState.users.find(u=>u.id !== appState.currentUser.id);
-              if(other){
-                appState.socketListeners['message']?.({user:other, text: 'Nice!', timestamp: new Date().toISOString()});
-              }
-            },800 + Math.random()*1200);
-          }
-        },
-        on: (event,cb)=>{appState.socketListeners[event]=cb}
-      }
-    };
+    <!-- YouTube IFrame API -->
+    <script>
+        // Application state
+        const appState = {
+            currentUser: null,
+            currentRoom: null,
+            users: [],
+            isConnected: false,
+            // In a real app, this would be a WebSocket connection to a server
+            // For this demo, we'll simulate the behavior
+            socket: {
+                emit: (event, data) => {
+                    console.log(`Emitting ${event}:`, data);
+                    // In a real app, this would send data to the server
+                    // For demo purposes, we'll simulate responses
+                    if (event === 'create_room') {
+                        setTimeout(() => {
+                            const roomId = generateRoomId();
+                            appState.socketListeners['room_created']?.({ roomId, users: [appState.currentUser] });
+                        }, 500);
+                    } else if (event === 'join_room') {
+                        setTimeout(() => {
+                            // Simulate other users in the room
+                            const otherUsers = [
+                                { id: 'user2', name: 'User2', color: 'from-blue-500 to-purple-500' },
+                                { id: 'user3', name: 'User3', color: 'from-green-500 to-teal-500' }
+                            ];
+                            appState.socketListeners['user_joined']?.({
+                                user: appState.currentUser,
+                                users: [appState.currentUser, ...otherUsers]
+                            });
+                            
+                            // Simulate receiving previous messages
+                            setTimeout(() => {
+                                appState.socketListeners['message']?.({
+                                    user: { id: 'user2', name: 'User2' },
+                                    text: 'Hey! Thanks for inviting me!',
+                                    timestamp: new Date().toISOString()
+                                });
+                            }, 1000);
+                        }, 800);
+                    } else if (event === 'player_action') {
+                        // Simulate other users receiving the player action
+                        setTimeout(() => {
+                            appState.socketListeners['player_action']?.(data);
+                        }, 100);
+                    } else if (event === 'send_message') {
+                        // Simulate other users receiving the message
+                        setTimeout(() => {
+                            const responses = [
+                                'That looks interesting!',
+                                'I love this video!',
+                                'What should we watch next?',
+                                '😂😂😂'
+                            ];
+                            const randomUser = appState.users.find(u => u.id !== appState.currentUser.id);
+                            if (randomUser) {
+                                appState.socketListeners['message']?.({
+                                    user: randomUser,
+                                    text: responses[Math.floor(Math.random() * responses.length)],
+                                    timestamp: new Date().toISOString()
+                                });
+                            }
+                        }, 1000 + Math.random() * 2000);
+                    }
+                },
+                listeners: {},
+                on: (event, callback) => {
+                    appState.socketListeners[event] = callback;
+                }
+            },
+            socketListeners: {}
+        };
 
-    function generateRoomId(){return Math.random().toString(36).substring(2,10).toUpperCase();}
-    function generateUserId(){return 'u_'+Math.random().toString(36).substring(2,8)}
+        // Generate a random room ID
+        function generateRoomId() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
 
-    // ----- UI helpers -----
-    function showLanding(show){document.getElementById('landing').style.display = show ? 'flex' : 'none';}
-    function showApp(show){document.getElementById('app').style.display = show ? 'block' : 'none';}
-    function showModal(show){document.getElementById('connectionModal').style.display = show ? 'flex' : 'none';}
+        // Generate a random user ID
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substring(2, 9);
+        }
 
-    // Landing actions
-    document.getElementById('enterBtn').addEventListener('click', ()=>{
-      showLanding(false); showApp(true); showModal(true);
-      // initialise socket listeners
-      initSocketListeners();
-    });
-    document.getElementById('demoBtn').addEventListener('click', ()=>{
-      // Quick demo: prefill name and create a room
-      document.getElementById('userName').value = 'You';
-      document.getElementById('createRoomBtn').click();
-    });
+        // Initialize the application
+        function initApp() {
+            // Show connection modal on load
+            document.getElementById('connectionModal').style.display = 'flex';
+            
+            // Set up event listeners for connection modal
+            document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+            document.getElementById('joinRoomBtn').addEventListener('click', showJoinRoomInput);
+            document.getElementById('confirmJoinBtn').addEventListener('click', joinRoom);
+            document.getElementById('startWatchingBtn').addEventListener('click', startWatching);
+            document.getElementById('copyRoomIdBtn').addEventListener('click', copyRoomId);
+            document.getElementById('inviteBtn').addEventListener('click', showInviteModal);
+            
+            // Set up socket listeners (simulated)
+            appState.socket.on('room_created', handleRoomCreated);
+            appState.socket.on('user_joined', handleUserJoined);
+            appState.socket.on('user_left', handleUserLeft);
+            appState.socket.on('player_action', handlePlayerAction);
+            appState.socket.on('message', handleChatMessage);
+        }
 
-    // Modal actions
-    document.getElementById('createRoomBtn').addEventListener('click', ()=>{
-      const name = document.getElementById('userName').value.trim();
-      if(!name) return alert('Please enter your name');
-      appState.currentUser = {id:generateUserId(), name, color:'gradient'};
-      appState.socket.emit('create_room',{user:appState.currentUser});
-    });
-    document.getElementById('joinRoomBtn').addEventListener('click', ()=>{
-      const name = document.getElementById('userName').value.trim();
-      if(!name) return alert('Please enter your name');
-      appState.currentUser = {id:generateUserId(), name, color:'gradient'};
-      document.getElementById('joinRoomSection').style.display = 'block';
-    });
-    document.getElementById('confirmJoinBtn').addEventListener('click', ()=>{
-      const roomId = document.getElementById('roomId').value.trim();
-      if(!roomId) return alert('Please enter a room ID');
-      appState.currentRoom = roomId;
-      appState.socket.emit('join_room', {roomId, user:appState.currentUser});
-    });
+        // Create a new room
+        function createRoom() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            // Create user object
+            const userColors = [
+                'from-red-500 to-orange-500',
+                'from-blue-500 to-purple-500',
+                'from-green-500 to-teal-500',
+                'from-yellow-500 to-red-500'
+            ];
+            
+            appState.currentUser = {
+                id: generateUserId(),
+                name: userName,
+                color: userColors[Math.floor(Math.random() * userColors.length)]
+            };
+            
+            // Simulate creating a room on the server
+            appState.socket.emit('create_room', { user: appState.currentUser });
+        }
 
-    document.getElementById('copyRoomIdBtn').addEventListener('click', ()=>{
-      const id = document.getElementById('roomIdDisplay').textContent;
-      navigator.clipboard?.writeText(id).then(()=>alert('Room ID copied'))
-    });
-    document.getElementById('startWatchingBtn').addEventListener('click', ()=>{
-      showModal(false);
-      document.getElementById('currentRoomId').textContent = appState.currentRoom || document.getElementById('roomIdDisplay').textContent;
-      updateOnlineUsers();
-      addMessageToChat('System','Welcome! Paste a YouTube URL to start synchronized playback.', false, true);
-    });
+        // Show join room input
+        function showJoinRoomInput() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            // Create user object
+            const userColors = [
+                'from-red-500 to-orange-500',
+                'from-blue-500 to-purple-500',
+                'from-green-500 to-teal-500',
+                'from-yellow-500 to-red-500'
+            ];
+            
+            appState.currentUser = {
+                id: generateUserId(),
+                name: userName,
+                color: userColors[Math.floor(Math.random() * userColors.length)]
+            };
+            
+            document.getElementById('joinRoomSection').classList.remove('hidden');
+        }
 
-    // ----- Socket handlers -----
-    function initSocketListeners(){
-      appState.socket.on('room_created', handleRoomCreated);
-      appState.socket.on('user_joined', handleUserJoined);
-      appState.socket.on('player_action', handlePlayerAction);
-      appState.socket.on('message', handleChatMessage);
-    }
+        // Join an existing room
+        function joinRoom() {
+            const roomId = document.getElementById('roomId').value.trim();
+            if (!roomId) {
+                alert('Please enter a room ID');
+                return;
+            }
+            
+            // Simulate joining a room on the server
+            appState.socket.emit('join_room', { 
+                roomId, 
+                user: appState.currentUser 
+            });
+            
+            appState.currentRoom = roomId;
+        }
 
-    function handleRoomCreated(data){
-      appState.currentRoom = data.roomId;
-      appState.users = data.users;
-      document.getElementById('roomCreatedSection').style.display = 'block';
-      document.getElementById('joinRoomSection').style.display = 'none';
-      document.getElementById('roomIdDisplay').textContent = data.roomId;
-    }
+        // Handle room created event
+        function handleRoomCreated(data) {
+            appState.currentRoom = data.roomId;
+            appState.users = data.users;
+            
+            // Update UI
+            document.getElementById('roomCreatedSection').classList.remove('hidden');
+            document.getElementById('roomIdDisplay').textContent = data.roomId;
+            document.getElementById('joinRoomSection').classList.add('hidden');
+        }
 
-    function handleUserJoined(data){
-      // enforce max members (demo)
-      if(data.users.length > appState.maxMembers){
-        alert('Room is full (max 2 members)');
-        return;
-      }
-      appState.users = data.users;
-      appState.currentRoom = appState.currentRoom || data.roomId;
-      updateOnlineUsers();
-      addMessageToChat('System', `${data.user.name} joined the room`, false, true);
-    }
+        // Handle user joined event
+        function handleUserJoined(data) {
+            appState.users = data.users;
+            updateOnlineUsers();
+            
+            // If we're the joining user, show the start watching button
+            if (data.user.id === appState.currentUser.id) {
+                document.getElementById('roomCreatedSection').classList.remove('hidden');
+                document.getElementById('roomIdDisplay').textContent = appState.currentRoom;
+                document.getElementById('joinRoomSection').classList.add('hidden');
+            }
+            
+            // Add join message to chat
+            addMessageToChat('System', `${data.user.name} joined the room`, false, true);
+        }
 
-    function handlePlayerAction(data){
-      if(!window.player) return;
-      if(data.userId === appState.currentUser?.id) return; // ignore our own
-      if(data.action === 'play') player.playVideo();
-      else if(data.action === 'pause') player.pauseVideo();
-      else if(data.action === 'load') player.loadVideoById(data.videoId);
-    }
+        // Handle user left event
+        function handleUserLeft(data) {
+            appState.users = appState.users.filter(user => user.id !== data.user.id);
+            updateOnlineUsers();
+            
+            // Add leave message to chat
+            addMessageToChat('System', `${data.user.name} left the room`, false, true);
+        }
 
-    function handleChatMessage(data){
-      const isOwn = data.user.id === appState.currentUser.id;
-      addMessageToChat(data.user.name, data.text, isOwn);
-    }
+        // Handle player action from server
+        function handlePlayerAction(data) {
+            // Only process if the action is from another user
+            if (data.userId !== appState.currentUser.id) {
+                if (data.action === 'play') {
+                    player.playVideo();
+                } else if (data.action === 'pause') {
+                    player.pauseVideo();
+                } else if (data.action === 'load') {
+                    player.loadVideoById(data.videoId);
+                }
+            }
+        }
 
-    // ----- UI helpers: online users and chat -----
-    function updateOnlineUsers(){
-      const container = document.getElementById('onlineUsersHeader');
-      const count = document.getElementById('onlineCountHeader');
-      container.innerHTML = '';
-      appState.users.forEach(u=>{
-        const d = document.createElement('div');
-        d.className = 'user-avatar';
-        d.style.background = 'linear-gradient(90deg,var(--butterfly-1),var(--butterfly-2))';
-        d.textContent = u.name.charAt(0).toUpperCase();
-        container.appendChild(d);
-      });
-      count.textContent = `${appState.users.length} online`;
-    }
+        // Handle incoming chat message
+        function handleChatMessage(data) {
+            const isOwn = data.user.id === appState.currentUser.id;
+            addMessageToChat(data.user.name, data.text, isOwn);
+        }
 
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
+        // Start watching (hide modal)
+        function startWatching() {
+            document.getElementById('connectionModal').style.display = 'none';
+            document.getElementById('roomInfo').classList.remove('hidden');
+            document.getElementById('currentRoomId').textContent = appState.currentRoom;
+            document.getElementById('inviteBtn').classList.remove('hidden');
+            
+            updateOnlineUsers();
+            
+            // Add welcome message
+            addMessageToChat('System', 'Welcome to the room! Paste a YouTube URL to start watching together.', false, true);
+        }
 
-    function addMessageToChat(user, text, isOwn=false, isSystem=false){
-      const div = document.createElement('div');
-      div.className = `message-bubble ${isOwn? 'own' : (isSystem? 'system' : 'other')}`;
-      if(!isOwn && !isSystem){
-        const u = document.createElement('div'); u.style.fontSize='12px'; u.style.opacity='0.85'; u.style.marginBottom='6px'; u.textContent = user; div.appendChild(u);
-      }
-      const t = document.createElement('div'); t.textContent = text; div.appendChild(t);
-      chatMessages.appendChild(div);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+        // Copy room ID to clipboard
+        function copyRoomId() {
+            const roomId = document.getElementById('roomIdDisplay').textContent;
+            navigator.clipboard.writeText(roomId).then(() => {
+                alert('Room ID copied to clipboard! Share it with your friends.');
+            });
+        }
 
-    sendBtn.addEventListener('click', ()=>{
-      const msg = chatInput.value.trim(); if(!msg) return; addMessageToChat('You', msg, true); chatInput.value='';
-      appState.socket.emit('send_message',{roomId:appState.currentRoom,userId:appState.currentUser.id,text:msg});
-    });
+        // Show invite modal (simplified)
+        function showInviteModal() {
+            alert(`Share this room ID with your friends: ${appState.currentRoom}`);
+        }
 
-    chatInput.addEventListener('input', ()=>{document.getElementById('typingIndicator').style.display='block'; clearTimeout(window._t); window._t = setTimeout(()=>{document.getElementById('typingIndicator').style.display='none'},900)});
-    chatInput.addEventListener('keypress',(e)=>{if(e.key==='Enter') sendBtn.click();});
+        // Update online users display
+        function updateOnlineUsers() {
+            const onlineUsersContainer = document.getElementById('onlineUsers');
+            const onlineCountElement = document.getElementById('onlineCount');
+            
+            // Clear current users
+            onlineUsersContainer.innerHTML = '';
+            
+            // Add each user
+            appState.users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'relative';
+                userElement.innerHTML = `
+                    <div class="user-avatar bg-gradient-to-r ${user.color}">${user.name.charAt(0)}</div>
+                    <div class="user-online"></div>
+                `;
+                onlineUsersContainer.appendChild(userElement);
+            });
+            
+            // Update count
+            onlineCountElement.textContent = `${appState.users.length} user${appState.users.length !== 1 ? 's' : ''} online`;
+        }
 
-    // ----- YouTube API -----
-    var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    var player;
-    function onYouTubeIframeAPIReady(){
-      player = new YT.Player('player',{height:'100%',width:'100%',videoId:'dQw4w9WgXcQ',playerVars:{'playsinline':1,'modestbranding':1,'rel':0},events:{'onReady':onPlayerReady}});
-    }
-    function onPlayerReady(e){console.log('YT ready')}
+        // YouTube Player API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    document.getElementById('playBtn').addEventListener('click', ()=>{if(player) player.playVideo(); appState.socket.emit('player_action',{roomId:appState.currentRoom,userId:appState.currentUser.id,action:'play'})});
-    document.getElementById('pauseBtn').addEventListener('click', ()=>{if(player) player.pauseVideo(); appState.socket.emit('player_action',{roomId:appState.currentRoom,userId:appState.currentUser.id,action:'pause'})});
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'dQw4w9WgXcQ', // Default video (Rick Astley - Never Gonna Give You Up)
+                playerVars: {
+                    'playsinline': 1,
+                    'modestbranding': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
 
-    document.getElementById('loadVideo').addEventListener('click', ()=>{
-      const url = document.getElementById('videoUrl').value.trim(); if(!url) return alert('Paste a YouTube URL');
-      const id = extractVideoId(url); if(!id) return alert('Invalid URL');
-      if(player) player.loadVideoById(id);
-      appState.socket.emit('player_action',{roomId:appState.currentRoom,userId:appState.currentUser.id,action:'load',videoId:id});
-    });
+        function onPlayerReady(event) {
+            console.log('Player is ready');
+        }
 
-    function extractVideoId(url){ const reg = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/; const m = url.match(reg); return (m && m[7].length===11)? m[7]: null }
+        function onPlayerStateChange(event) {
+            // Handle player state changes
+        }
 
-    // Initialize demo with small sample when page loads (keeps landing visible)
-    window.addEventListener('load', ()=>{
-      // nothing auto; user will press Enter
-    });
-  </script>
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        function addMessageToChat(user, text, isOwn = false, isSystem = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble ${isOwn ? 'own' : 'other'} ${isSystem ? 'bg-gray-600' : ''}`;
+            
+            if (!isOwn && !isSystem) {
+                const userSpan = document.createElement('span');
+                userSpan.className = 'text-xs font-semibold text-gray-400 block mb-1';
+                userSpan.textContent = user;
+                messageDiv.appendChild(userSpan);
+            }
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = isSystem ? 'text-gray-300 italic' : 'text-white';
+            textSpan.textContent = text;
+            messageDiv.appendChild(textSpan);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                // Add to chat
+                addMessageToChat('You', message, true);
+                
+                // Simulate sending to server
+                appState.socket.emit('send_message', {
+                    roomId: appState.currentRoom,
+                    userId: appState.currentUser.id,
+                    text: message
+                });
+                
+                chatInput.value = '';
+            }
+        }
+
+        // Video controls
+        document.getElementById('playBtn').addEventListener('click', () => {
+            player.playVideo();
+            
+            // Simulate sending to server
+            appState.socket.emit('player_action', {
+                roomId: appState.currentRoom,
+                userId: appState.currentUser.id,
+                action: 'play'
+            });
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            player.pauseVideo();
+            
+            // Simulate sending to server
+            appState.socket.emit('player_action', {
+                roomId: appState.currentRoom,
+                userId: appState.currentUser.id,
+                action: 'pause'
+            });
+        });
+
+        document.getElementById('loadVideo').addEventListener('click', () => {
+            const url = document.getElementById('videoUrl').value.trim();
+            if (url) {
+                const videoId = extractVideoId(url);
+                if (videoId) {
+                    player.loadVideoById(videoId);
+                    
+                    // Simulate sending to server
+                    appState.socket.emit('player_action', {
+                        roomId: appState.currentRoom,
+                        userId: appState.currentUser.id,
+                        action: 'load',
+                        videoId: videoId
+                    });
+                } else {
+                    alert('Please enter a valid YouTube URL');
+                }
+            }
+        });
+
+        function extractVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        // Simulate typing indicator
+        chatInput.addEventListener('input', () => {
+            typingIndicator.style.display = 'block';
+            clearTimeout(window.typingTimer);
+            window.typingTimer = setTimeout(() => {
+                typingIndicator.style.display = 'none';
+            }, 1000);
+        });
+
+        // Initialize the app when the page loads
+        window.addEventListener('load', initApp);
+    </script>
 </body>
 </html>
