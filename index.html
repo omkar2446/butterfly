@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butterfly YouTube Sync - Watch Together</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8A2BE2', // Butterfly purple
+                        secondary: '#6A0DAD', // Darker purple
+                        accent: '#FF6B8B',   // Pink accent
+                        butterfly: '#4A1E8C', // Deep purple
+                        wingblue: '#38BDF8',  // Blue for wing details
+                        wingpink: '#FDBA74',  // Orange-pink for wing details
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a0639 0%, #2d0b5e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .message-bubble.own {
+            background: linear-gradient(135deg, #8A2BE2 0%, #6A0DAD 100%);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-bubble.other {
+            background: linear-gradient(135deg, #4A1E8C 0%, #2d0b5e 100%);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #FF6B8B;
+        }
+        
+        .video-container {
+            transition: all 0.3s ease;
+        }
+        
+        .typing-indicator {
+            display: none;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .user-online {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 2px solid #1a0639;
+        }
+        
+        .youtube-player {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .gradient-border {
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, #8A2BE2, #FF6B8B, #38BDF8) border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2d0b5e 0%, #1a0639 100%);
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Butterfly theme elements */
+        .butterfly-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%238A2BE2' fill-opacity='0.3' d='M0,224L48,213.3C96,203,192,181,288,160C384,139,480,117,576,122.7C672,128,768,160,864,186.7C960,213,1056,235,1152,229.3C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+        }
+        
+        .butterfly {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .butterfly-1 {
+            top: 10%;
+            left: 5%;
+            width: 40px;
+            height: 40px;
+            animation-delay: 0s;
+        }
+        
+        .butterfly-2 {
+            top: 20%;
+            right: 10%;
+            width: 30px;
+            height: 30px;
+            animation-delay: -5s;
+        }
+        
+        .butterfly-3 {
+            bottom: 30%;
+            left: 15%;
+            width: 25px;
+            height: 25px;
+            animation-delay: -10s;
+        }
+        
+        .butterfly-4 {
+            bottom: 10%;
+            right: 5%;
+            width: 35px;
+            height: 35px;
+            animation-delay: -15s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            75% {
+                transform: translateY(20px) rotate(-5deg);
+            }
+        }
+        
+        .butterfly-icon {
+            background: linear-gradient(135deg, #8A2BE2 0%, #FF6B8B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-butterfly {
+            background: linear-gradient(135deg, #8A2BE2 0%, #FF6B8B 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-butterfly:hover {
+            background: linear-gradient(135deg, #6A0DAD 0%, #E94E82 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+        }
+        
+        .header-bg {
+            background: linear-gradient(135deg, #2d0b5e 0%, #1a0639 100%);
+            border-bottom: 2px solid #8A2BE2;
+        }
+        
+        .section-bg {
+            background: linear-gradient(135deg, #2d0b5e 0%, #1a0639 100%);
+            border: 1px solid #4A1E8C;
+        }
+        
+        .chat-bg {
+            background: linear-gradient(135deg, #2d0b5e 0%, #1a0639 100%);
+            border: 1px solid #4A1E8C;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #2d0b5e 0%, #1a0639 100%);
+            border: 1px solid #4A1E8C;
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(74, 30, 140, 0.3);
+            border-color: #8A2BE2;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Butterfly background elements -->
+    <div class="butterfly-bg"></div>
+    <div class="butterfly butterfly-1">🦋</div>
+    <div class="butterfly butterfly-2">🦋</div>
+    <div class="butterfly butterfly-3">🦋</div>
+    <div class="butterfly butterfly-4">🦋</div>
+
+    <!-- Connection Modal -->
+    <div id="connectionModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-6 text-center butterfly-icon">Join a Butterfly Watch Party</h2>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                <input type="text" id="userName" placeholder="Enter your name" 
+                       class="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button id="createRoomBtn" class="btn-butterfly text-white py-3 px-4 rounded-lg font-medium">
+                    Create New Room
+                </button>
+                <button id="joinRoomBtn" class="btn-butterfly text-white py-3 px-4 rounded-lg font-medium">
+                    Join Room
+                </button>
+            </div>
+            
+            <div id="joinRoomSection" class="mt-6 hidden">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Room ID</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="roomId" placeholder="Enter room ID" 
+                           class="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none">
+                    <button id="confirmJoinBtn" class="btn-butterfly text-white px-4 py-2 rounded-lg font-medium">
+                        Join
+                    </button>
+                </div>
+            </div>
+            
+            <div id="roomCreatedSection" class="mt-6 hidden">
+                <p class="text-gray-300 mb-2">Share this room ID with your friends:</p>
+                <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
+                    <span id="roomIdDisplay" class="font-mono text-lg">ABCD1234</span>
+                    <button id="copyRoomIdBtn" class="text-purple-400 hover:text-purple-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button id="startWatchingBtn" class="w-full mt-4 btn-butterfly text-white py-3 px-4 rounded-lg font-medium">
+                    Start Watching
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header-bg py-4 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg flex items-center justify-center pulse">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Butterfly YouTube Sync</h1>
+                <div id="roomInfo" class="hidden ml-4 text-sm text-purple-300">
+                    Room: <span id="currentRoomId" class="font-mono">ABCD1234</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div id="onlineUsers" class="flex -space-x-2">
+                    <!-- Users will be added dynamically -->
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-2 bg-purple-900 bg-opacity-50 px-3 py-2 rounded-lg">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span id="onlineCount" class="text-sm text-purple-300">0 users online</span>
+                </div>
+
+                <button id="inviteBtn" class="btn-butterfly text-white px-4 py-2 rounded-lg text-sm hidden">
+                    Invite Friends
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Video Section -->
+            <div class="lg:col-span-2">
+                <div class="youtube-player">
+                    <div id="player" class="w-full aspect-video"></div>
+                </div>
+                
+                <div class="mt-6 section-bg rounded-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-purple-300">Video Controls</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button id="playBtn" class="btn-butterfly text-white py-3 px-4 rounded-lg font-medium">
+                            Play
+                        </button>
+                        <button id="pauseBtn" class="bg-purple-900 bg-opacity-50 hover:bg-purple-800 text-white py-3 px-4 rounded-lg font-medium transition-colors">
+                            Pause
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-purple-300">Video URL</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="videoUrl" placeholder="Paste YouTube URL" 
+                                   class="flex-1 bg-purple-900 bg-opacity-30 text-white px-4 py-2 rounded-lg border border-purple-700 focus:border-purple-500 focus:outline-none">
+                            <button id="loadVideo" class="btn-butterfly text-white px-4 py-2 rounded-lg font-medium">
+                                Load
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-bg rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-purple-700">
+                    <h2 class="text-xl font-semibold text-purple-300">Butterfly Chat</h2>
+                    <p class="text-sm text-purple-400">Chat with your friends while watching</p>
+                </div>
+                
+                <div class="h-96 overflow-y-auto p-4 space-y-3" id="chatMessages">
+                    <!-- Messages will be added here by JavaScript -->
+                </div>
+                
+                <div class="p-4 border-t border-purple-700">
+                    <div id="typingIndicator" class="typing-indicator">
+                        Someone is typing...
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <input type="text" id="chatInput" placeholder="Type a message..." 
+                               class="flex-1 bg-purple-900 bg-opacity-30 text-white px-4 py-2 rounded-lg border border-purple-700 focus:border-purple-500 focus:outline-none">
+                        <button id="sendBtn" class="btn-butterfly text-white px-4 py-2 rounded-lg font-medium">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Info Section -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="gradient-border rounded-xl p-6">
+            <h2 class="text-xl font-semibold mb-4 text-purple-300">How to Connect with Friends</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="info-card p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-purple-300">Share Link</h3>
+                    <p class="text-sm text-purple-200">Share this page URL with up to 3 friends to watch together.</p>
+                </div>
+                
+                <div class="info-card p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-purple-300">Sync Playback</h3>
+                    <p class="text-sm text-purple-200">All video controls are synchronized for everyone in the room.</p>
+                </div>
+                
+                <div class="info-card p-4 rounded-lg">
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-purple-300">Real-time Chat</h3>
+                    <p class="text-sm text-purple-200">Chat with your friends while watching videos together.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API -->
+    <script>
+        // Application state
+        const appState = {
+            currentUser: null,
+            currentRoom: null,
+            users: [],
+            isConnected: false,
+            // In a real app, this would be a WebSocket connection to a server
+            // For this demo, we'll simulate the behavior
+            socket: {
+                emit: (event, data) => {
+                    console.log(`Emitting ${event}:`, data);
+                    // In a real app, this would send data to the server
+                    // For demo purposes, we'll simulate responses
+                    if (event === 'create_room') {
+                        setTimeout(() => {
+                            const roomId = generateRoomId();
+                            appState.socketListeners['room_created']?.({ roomId, users: [appState.currentUser] });
+                        }, 500);
+                    } else if (event === 'join_room') {
+                        setTimeout(() => {
+                            // Simulate other users in the room
+                            const otherUsers = [
+                                { id: 'user2', name: 'User2', color: 'from-blue-500 to-purple-500' },
+                                { id: 'user3', name: 'User3', color: 'from-green-500 to-teal-500' }
+                            ];
+                            appState.socketListeners['user_joined']?.({
+                                user: appState.currentUser,
+                                users: [appState.currentUser, ...otherUsers]
+                            });
+                            
+                            // Simulate receiving previous messages
+                            setTimeout(() => {
+                                appState.socketListeners['message']?.({
+                                    user: { id: 'user2', name: 'User2' },
+                                    text: 'Hey! Thanks for inviting me!',
+                                    timestamp: new Date().toISOString()
+                                });
+                            }, 1000);
+                        }, 800);
+                    } else if (event === 'player_action') {
+                        // Simulate other users receiving the player action
+                        setTimeout(() => {
+                            appState.socketListeners['player_action']?.(data);
+                        }, 100);
+                    } else if (event === 'send_message') {
+                        // Simulate other users receiving the message
+                        setTimeout(() => {
+                            const responses = [
+                                'That looks interesting!',
+                                'I love this video!',
+                                'What should we watch next?',
+                                '😂😂😂'
+                            ];
+                            const randomUser = appState.users.find(u => u.id !== appState.currentUser.id);
+                            if (randomUser) {
+                                appState.socketListeners['message']?.({
+                                    user: randomUser,
+                                    text: responses[Math.floor(Math.random() * responses.length)],
+                                    timestamp: new Date().toISOString()
+                                });
+                            }
+                        }, 1000 + Math.random() * 2000);
+                    }
+                },
+                listeners: {},
+                on: (event, callback) => {
+                    appState.socketListeners[event] = callback;
+                }
+            },
+            socketListeners: {}
+        };
+
+        // Generate a random room ID
+        function generateRoomId() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        // Generate a random user ID
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substring(2, 9);
+        }
+
+        // Initialize the application
+        function initApp() {
+            // Show connection modal on load
+            document.getElementById('connectionModal').style.display = 'flex';
+            
+            // Set up event listeners for connection modal
+            document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+            document.getElementById('joinRoomBtn').addEventListener('click', showJoinRoomInput);
+            document.getElementById('confirmJoinBtn').addEventListener('click', joinRoom);
+            document.getElementById('startWatchingBtn').addEventListener('click', startWatching);
+            document.getElementById('copyRoomIdBtn').addEventListener('click', copyRoomId);
+            document.getElementById('inviteBtn').addEventListener('click', showInviteModal);
+            
+            // Set up socket listeners (simulated)
+            appState.socket.on('room_created', handleRoomCreated);
+            appState.socket.on('user_joined', handleUserJoined);
+            appState.socket.on('user_left', handleUserLeft);
+            appState.socket.on('player_action', handlePlayerAction);
+            appState.socket.on('message', handleChatMessage);
+        }
+
+        // Create a new room
+        function createRoom() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            // Create user object
+            const userColors = [
+                'from-purple-500 to-pink-500',
+                'from-blue-500 to-purple-500',
+                'from-green-500 to-teal-500',
+                'from-yellow-500 to-red-500'
+            ];
+            
+            appState.currentUser = {
+                id: generateUserId(),
+                name: userName,
+                color: userColors[Math.floor(Math.random() * userColors.length)]
+            };
+            
+            // Simulate creating a room on the server
+            appState.socket.emit('create_room', { user: appState.currentUser });
+        }
+
+        // Show join room input
+        function showJoinRoomInput() {
+            const userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            // Create user object
+            const userColors = [
+                'from-purple-500 to-pink-500',
+                'from-blue-500 to-purple-500',
+                'from-green-500 to-teal-500',
+                'from-yellow-500 to-red-500'
+            ];
+            
+            appState.currentUser = {
+                id: generateUserId(),
+                name: userName,
+                color: userColors[Math.floor(Math.random() * userColors.length)]
+            };
+            
+            document.getElementById('joinRoomSection').classList.remove('hidden');
+        }
+
+        // Join an existing room
+        function joinRoom() {
+            const roomId = document.getElementById('roomId').value.trim();
+            if (!roomId) {
+                alert('Please enter a room ID');
+                return;
+            }
+            
+            // Simulate joining a room on the server
+            appState.socket.emit('join_room', { 
+                roomId, 
+                user: appState.currentUser 
+            });
+            
+            appState.currentRoom = roomId;
+        }
+
+        // Handle room created event
+        function handleRoomCreated(data) {
+            appState.currentRoom = data.roomId;
+            appState.users = data.users;
+            
+            // Update UI
+            document.getElementById('roomCreatedSection').classList.remove('hidden');
+            document.getElementById('roomIdDisplay').textContent = data.roomId;
+            document.getElementById('joinRoomSection').classList.add('hidden');
+        }
+
+        // Handle user joined event
+        function handleUserJoined(data) {
+            appState.users = data.users;
+            updateOnlineUsers();
+            
+            // If we're the joining user, show the start watching button
+            if (data.user.id === appState.currentUser.id) {
+                document.getElementById('roomCreatedSection').classList.remove('hidden');
+                document.getElementById('roomIdDisplay').textContent = appState.currentRoom;
+                document.getElementById('joinRoomSection').classList.add('hidden');
+            }
+            
+            // Add join message to chat
+            addMessageToChat('System', `${data.user.name} joined the room`, false, true);
+        }
+
+        // Handle user left event
+        function handleUserLeft(data) {
+            appState.users = appState.users.filter(user => user.id !== data.user.id);
+            updateOnlineUsers();
+            
+            // Add leave message to chat
+            addMessageToChat('System', `${data.user.name} left the room`, false, true);
+        }
+
+        // Handle player action from server
+        function handlePlayerAction(data) {
+            // Only process if the action is from another user
+            if (data.userId !== appState.currentUser.id) {
+                if (data.action === 'play') {
+                    player.playVideo();
+                } else if (data.action === 'pause') {
+                    player.pauseVideo();
+                } else if (data.action === 'load') {
+                    player.loadVideoById(data.videoId);
+                }
+            }
+        }
+
+        // Handle incoming chat message
+        function handleChatMessage(data) {
+            const isOwn = data.user.id === appState.currentUser.id;
+            addMessageToChat(data.user.name, data.text, isOwn);
+        }
+
+        // Start watching (hide modal)
+        function startWatching() {
+            document.getElementById('connectionModal').style.display = 'none';
+            document.getElementById('roomInfo').classList.remove('hidden');
+            document.getElementById('currentRoomId').textContent = appState.currentRoom;
+            document.getElementById('inviteBtn').classList.remove('hidden');
+            
+            updateOnlineUsers();
+            
+            // Add welcome message
+            addMessageToChat('System', 'Welcome to the room! Paste a YouTube URL to start watching together.', false, true);
+        }
+
+        // Copy room ID to clipboard
+        function copyRoomId() {
+            const roomId = document.getElementById('roomIdDisplay').textContent;
+            navigator.clipboard.writeText(roomId).then(() => {
+                alert('Room ID copied to clipboard! Share it with your friends.');
+            });
+        }
+
+        // Show invite modal (simplified)
+        function showInviteModal() {
+            alert(`Share this room ID with your friends: ${appState.currentRoom}`);
+        }
+
+        // Update online users display
+        function updateOnlineUsers() {
+            const onlineUsersContainer = document.getElementById('onlineUsers');
+            const onlineCountElement = document.getElementById('onlineCount');
+            
+            // Clear current users
+            onlineUsersContainer.innerHTML = '';
+            
+            // Add each user
+            appState.users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'relative';
+                userElement.innerHTML = `
+                    <div class="user-avatar bg-gradient-to-r ${user.color}">${user.name.charAt(0)}</div>
+                    <div class="user-online"></div>
+                `;
+                onlineUsersContainer.appendChild(userElement);
+            });
+            
+            // Update count
+            onlineCountElement.textContent = `${appState.users.length} user${appState.users.length !== 1 ? 's' : ''} online`;
+        }
+
+        // YouTube Player API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'dQw4w9WgXcQ', // Default video (Rick Astley - Never Gonna Give You Up)
+                playerVars: {
+                    'playsinline': 1,
+                    'modestbranding': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log('Player is ready');
+        }
+
+        function onPlayerStateChange(event) {
+            // Handle player state changes
+        }
+
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        function addMessageToChat(user, text, isOwn = false, isSystem = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-bubble ${isOwn ? 'own' : 'other'} ${isSystem ? 'bg-purple-800' : ''}`;
+            
+            if (!isOwn && !isSystem) {
+                const userSpan = document.createElement('span');
+                userSpan.className = 'text-xs font-semibold text-purple-300 block mb-1';
+                userSpan.textContent = user;
+                messageDiv.appendChild(userSpan);
+            }
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = isSystem ? 'text-purple-300 italic' : 'text-white';
+            textSpan.textContent = text;
+            messageDiv.appendChild(textSpan);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                // Add to chat
+                addMessageToChat('You', message, true);
+                
+                // Simulate sending to server
+                appState.socket.emit('send_message', {
+                    roomId: appState.currentRoom,
+                    userId: appState.currentUser.id,
+                    text: message
+                });
+                
+                chatInput.value = '';
+            }
+        }
+
+        // Video controls
+        document.getElementById('playBtn').addEventListener('click', () => {
+            player.playVideo();
+            
+            // Simulate sending to server
+            appState.socket.emit('player_action', {
+                roomId: appState.currentRoom,
+                userId: appState.currentUser.id,
+                action: 'play'
+            });
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            player.pauseVideo();
+            
+            // Simulate sending to server
+            appState.socket.emit('player_action', {
+                roomId: appState.currentRoom,
+                userId: appState.currentUser.id,
+                action: 'pause'
+            });
+        });
+
+        document.getElementById('loadVideo').addEventListener('click', () => {
+            const url = document.getElementById('videoUrl').value.trim();
+            if (url) {
+                const videoId = extractVideoId(url);
+                if (videoId) {
+                    player.loadVideoById(videoId);
+                    
+                    // Simulate sending to server
+                    appState.socket.emit('player_action', {
+                        roomId: appState.currentRoom,
+                        userId: appState.currentUser.id,
+                        action: 'load',
+                        videoId: videoId
+                    });
+                } else {
+                    alert('Please enter a valid YouTube URL');
+                }
+            }
+        });
+
+        function extractVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        // Simulate typing indicator
+        chatInput.addEventListener('input', () => {
+            typingIndicator.style.display = 'block';
+            clearTimeout(window.typingTimer);
+            window.typingTimer = setTimeout(() => {
+                typingIndicator.style.display = 'none';
+            }, 1000);
+        });
+
+        // Initialize the app when the page loads
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
